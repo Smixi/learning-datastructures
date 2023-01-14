@@ -4,7 +4,7 @@ from graphviz import Graph
 NV = TypeVar('NV')
 EV = TypeVar('EV')
 
-class UndirectedGraph(Generic[NV, EV]):
+class AdjacencySetUndirectedGraph(Generic[NV, EV]):
     """Graph implementation using hashable object and adjacency dict."""
     
     def __init__(self) -> None:
@@ -26,13 +26,11 @@ class UndirectedGraph(Generic[NV, EV]):
         """
         if node is None:
             raise ValueError("None value cannot be used as a Node")
-        if node in self.nodes:
-            # Update the node value
-            self.nodes[node] = value
-        else:
-            self.nodes[node] = value
+        
+        if node not in self.nodes:
             # We initialize the entry in the adjency dict for this node.
             self.links[node] = {}
+        self.nodes[node] = value
 
     def remove_node(self, node: Hashable):
         """Remove a node from the graph. This will delete all links associated to it.
@@ -58,11 +56,11 @@ class UndirectedGraph(Generic[NV, EV]):
         If the node already exists, the node value will not be updated.
 
         Args:
-            node1 (Hashable): _description_
-            node2 (Hashable): _description_
-            link_value (EV): _description_
-            node1_value (NV, optional): _description_. Defaults to None.
-            node2_value (_type_, optional): _description_. Defaults to NV.
+            node1 (Hashable): First node that take part of the link
+            node2 (Hashable): Second node that take part of the link
+            link_value (EV): A value stored for this link
+            node1_value (NV, optional): In case this node doesn't exists, give it a value. Defaults to None.
+            node2_value (_type_, optional): In case this node doesn't exists, give it a value. Defaults to NV.
         """
         # Check that each node exists first.
         if node1 not in self.nodes:
