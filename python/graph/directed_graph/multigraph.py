@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Dict, Hashable, Set, Tuple
+from typing import TypeVar, Generic, Dict, Hashable, Set
 from graphviz import Digraph
 
 NV = TypeVar('NV')
