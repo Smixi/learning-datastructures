@@ -91,7 +91,7 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
         if node1 != node2: # A link can connect the node to itself, but we can't delete it twice.
             del self.links[node2][node1]
 
-    def render(self, filename: str, graph_name: str, format: str = "svg"):
+    def render(self, filename: str, graph_name: str, output_format: str = "svg"):
         """Render a graph to the fileformat yout want, with the given filename
 
         Args:
@@ -99,7 +99,7 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
             graph_name (str): The name of the graph to be rendered
             format (str, optional): File format of the graph. Defaults to "svg". Supported format are available [here](https://graphviz.org/docs/outputs/)
         """
-        dot = Graph(graph_name, format=format)
+        dot = Graph(graph_name, format=output_format)
 
         for node, node_value in self.nodes.items():
             dot.node(str(node), str(node_value))

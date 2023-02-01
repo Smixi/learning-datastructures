@@ -1,5 +1,5 @@
 from typing import TypeVar, Generic, Dict, Hashable
-from graphviz import Graph
+from graphviz import Digraph
 
 NV = TypeVar('NV')
 EV = TypeVar('EV')
@@ -7,7 +7,7 @@ EV = TypeVar('EV')
 NodeId = Hashable
 LinkId = Hashable
 
-class AdjacencySetUndirectedMultiGraph(Generic[NV, EV]):
+class AdjacencyDirectedSetMultiGraph(Generic[NV, EV]):
     """Graph implementation using hashable object and adjacency dict."""
     
     def __init__(self) -> None:
@@ -59,8 +59,8 @@ class AdjacencySetUndirectedMultiGraph(Generic[NV, EV]):
         If the node already exists, the node value will not be updated.
 
         Args:
-            node1 (NodeId): First node that take part of the link
-            node2 (NodeId): Second node that take part of the link
+            node1 (NodeId): Source node that take part of the link
+            node2 (NodeId): Destination node that take part of the link
             link_id (): Link id. Identify a unique link between node1 and node2.
             link_value (EV): A value stored for this link
             node1_value (NV, optional): In case this node doesn't exists, give it a value. Defaults to None.
@@ -72,19 +72,17 @@ class AdjacencySetUndirectedMultiGraph(Generic[NV, EV]):
         if node2 not in self.nodes:
             self.add_node(node2, node2_value)
         
-        # Add the link in the adjency dict for both node. Must ensure the dict indirection exist before hands.
+        # Add the link in the adjency dict for the source node. Must ensure the dict indirection exist before hands.
         if node2 not in self.links[node1]:
             self.links[node1][node2] = {}
-            self.links[node2][node1] = {}
         self.links[node1][node2][link_id] = link_value
-        self.links[node2][node1][link_id] = link_value
 
     def remove_links(self, node1: NodeId, node2: NodeId):
-        """Remove all links of the graph between node1 and node2. Each node must exist in the graph.
+        """Remove all links of the graph between node1 and node2 (from source to dest). Each node must exist in the graph.
 
         Args:
-            node1 (NodeId): First node of the link
-            node2 (NodeId): Second node of the link
+            node1 (NodeId): Source node of the link
+            node2 (NodeId): Dest node of the link
 
         Raises:
             ValueError: The first node in not in the graph
@@ -95,9 +93,7 @@ class AdjacencySetUndirectedMultiGraph(Generic[NV, EV]):
         if node2 not in self.nodes:
             raise ValueError("Second node of the given link is not in the graph")
         del self.links[node1][node2]
-        if node1 != node2: # A link can connect the node to itself, but we can't delete it twice.
-            del self.links[node2][node1]
-
+        
     def remove_link(self, node1: NodeId, node2: NodeId, link_id: LinkId):
         """Remove all links of the graph between node1 and node2. Each node must exist in the graph.
 
@@ -117,10 +113,6 @@ class AdjacencySetUndirectedMultiGraph(Generic[NV, EV]):
         # Remove key if there is no more item in the dictionnary
         if len(self.links[node1][node2]) == 0:
             del self.links[node1][node2]
-        if node1 != node2: # A link can connect the node to itself, but we can't delete it twice.
-            del self.links[node2][node1][link_id]
-            if len(self.links[node2][node1]) == 0:
-                del self.links[node2][node1]
 
     def render(self, filename: str, graph_name: str, output_format: str = "svg"):
         """Render a graph to the fileformat yout want, with the given filename
@@ -130,19 +122,13 @@ class AdjacencySetUndirectedMultiGraph(Generic[NV, EV]):
             graph_name (str): The name of the graph to be rendered
             format (str, optional): File format of the graph. Defaults to "svg". Supported format are available [here](https://graphviz.org/docs/outputs/)
         """
-        dot = Graph(graph_name, format=output_format)
+        dot = Digraph(graph_name, format=output_format)
 
         for node, node_value in self.nodes.items():
             dot.node(str(node), str(node_value))
         
-        added_links = set()
-
         for source_node, dest_nodes in self.links.items():
             for dest_node, links in dest_nodes.items():
                 for link_id, link_value in links.items():
-                    # Check if the link is already setup in the graph
-                    if (dest_node, source_node) in added_links:
-                        continue
-                    added_links.add((source_node, dest_node))
                     dot.edge(str(source_node), str(dest_node) , label=str(link_value))
         dot.render(filename)
