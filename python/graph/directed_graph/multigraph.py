@@ -104,7 +104,7 @@ class AdjacencyDirectedSetMultiGraph(Generic[NV, EV]):
         del self.reverse_link_lookup[node2][node1]
         
     def remove_link(self, node1: NodeId, node2: NodeId, link_id: LinkId):
-        """Remove all links of the graph between node1 and node2. Each node must exist in the graph.
+        """Remove a link of the graph between node1 and node2. Each node must exist in the graph.
 
         Args:
             node1 (NodeId): First node of the link

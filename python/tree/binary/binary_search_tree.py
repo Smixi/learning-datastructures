@@ -2,14 +2,15 @@ from typing import Generic, TypeVar, Optional
 from typing_extensions import Self
 from dataclasses import dataclass
 
-NodeKey = TypeVar('NodeKey')
-NodeValue = TypeVar('NodeValue')
+NodeKey = TypeVar("NodeKey")
+NodeValue = TypeVar("NodeValue")
+
 
 @dataclass
 class BinarySearchNode(Generic[NodeKey, NodeValue]):
-    parent: Optional['BinarySearchNode'] = None
-    left_child: Optional['BinarySearchNode'] = None
-    right_child: Optional['BinarySearchNode'] = None
+    parent: Optional["BinarySearchNode"] = None
+    left_child: Optional["BinarySearchNode"] = None
+    right_child: Optional["BinarySearchNode"] = None
     key: NodeKey = None
     value: NodeValue = None
 
@@ -24,36 +25,44 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
                 yield node
 
     def is_leaf(self):
-        return (self.left_child is None) and (self.right_child is None) 
-    
-    def is_root(self):
-        return self.parent == None
+        return (self.left_child is None) and (self.right_child is None)
 
-    def insert(self, key: NodeKey, value: NodeValue | None = None) -> 'BinarySearchNode':
+    def is_root(self):
+        return self.parent is None
+
+    def insert(
+        self, key: NodeKey, value: NodeValue | None = None
+    ) -> "BinarySearchNode":
         if key == self.key:
             return self
-        child = BinarySearchNode(self, key=key, value=value)
         if key < self.key:
-            self.left_child = child
+            if self.left_child is None:
+                self.left_child = BinarySearchNode(self, key=key, value=value)
+                return self.left_child
+            else:
+                return self.left_child.insert(key, value)
         else:
-            self.right_child = child
-        return child
+            if self.right_child is None:
+                self.right_child = BinarySearchNode(self, key=key, value=value)
+                return self.right_child
+            else:
+                return self.right_child.insert(key, value)
 
-    def get_most_left(self) -> 'BinarySearchNode':
+    def get_most_left(self) -> "BinarySearchNode":
         return self if self.left_child is None else self.left_child.get_most_left()
 
-    def get_most_right(self) -> 'BinarySearchNode':
+    def get_most_right(self) -> "BinarySearchNode":
         return self if self.right_child is None else self.right_child.get_most_right()
 
-    def get_successor(self) -> 'BinarySearchNode':
+    def get_successor(self) -> "BinarySearchNode":
         return self.right_child.get_most_left()
 
-    def get_predecessor(self) -> 'BinarySearchNode':
+    def get_predecessor(self) -> "BinarySearchNode":
         return self.left_child.get_most_right()
-    
+
     def is_left_child(self):
         return self.parent.left_child is self if self.parent is not None else False
-    
+
     def is_right_child(self):
         return self.parent.right_child is self if self.parent is not None else False
 
@@ -81,7 +90,7 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
                 node.parent.right_child = child
             del node
             return child
-        
+
         # Two children
         successor = self.get_successor()
         # update node
@@ -91,7 +100,7 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
         if successor.is_left_child():
             successor.parent.left_child = successor.right_child
         else:
-            successor.parent.right_child =successor.right_child
+            successor.parent.right_child = successor.right_child
 
     def search(self, key: NodeKey) -> Self | None:
         if key == self.key:
@@ -99,9 +108,9 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
         if key < self.key:
             return self.left_child.search(key) if self.left_child is not None else None
         else:
-            return self.right_child.search(key) if self.right_child is not None else None
-    
+            return (
+                self.right_child.search(key) if self.right_child is not None else None
+            )
+
     def key_exists(self, key: NodeKey):
         return self.search(key) is None
-
-
