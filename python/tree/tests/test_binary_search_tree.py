@@ -36,3 +36,23 @@ def test_binary_search_tree_insert_mixed():
         (root.left_child.right_child, 3),
     ]:
         assert node.key == expected
+
+def test_binary_search_tree_delete_root():
+    root = BinarySearchNode(key=1)
+    node = root.delete(1)
+
+    assert node == None
+
+def test_binary_search_tree_delete_leaf():
+    root = BinarySearchNode(key=1)
+    root.insert(2)
+    node = root.delete(2)
+
+    assert node is None
+
+def test_binary_search_tree_delete_root():
+    root = BinarySearchNode(key=1)
+    node = root.insert(2)
+    deleted_node = root.delete(1)
+
+    assert node is deleted_node
