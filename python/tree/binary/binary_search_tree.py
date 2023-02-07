@@ -54,11 +54,21 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
     def get_most_right(self) -> "BinarySearchNode":
         return self if self.right_child is None else self.right_child.get_most_right()
 
+    def has_successor(self) -> bool:
+        return (self.right_child is not None) or self.is_left_child()
+
+    def has_predecessor(self) -> "BinarySearchNode":
+        return (self.left_child is not None) or self.is_right_child()
+    
     def get_successor(self) -> "BinarySearchNode":
-        return self.right_child.get_most_left()
+        if self.right_child is not None:
+            return self.right_child.get_most_left()
+        return self.parent
 
     def get_predecessor(self) -> "BinarySearchNode":
-        return self.left_child.get_most_right()
+        if self.left_child is not None:
+            return self.left_child.get_most_right()
+        return self.parent
 
     def is_left_child(self):
         return self.parent.left_child is self if self.parent is not None else False
@@ -75,8 +85,10 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
             if not node.is_root():
                 if node.is_left_child():
                     node.parent.left_child = None
+                    del node
                 else:
                     node.parent.right_child = None
+                    del node
             return None
 
         # Only one child
@@ -84,23 +96,44 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
             child = node.left_child or node.right_child
             child.parent = node.parent
 
-            if node.is_left_child():
-                node.parent.left_child = child
-            elif node.is_right_child():
-                node.parent.right_child = child
+            if not node.is_root():
+                if node.is_left_child():
+                    node.parent.left_child = child
+                elif node.is_right_child():
+                    node.parent.right_child = child
             del node
             return child
 
         # Two children
-        successor = self.get_successor()
-        # update node
-        node.key = successor.key
-        node.value = successor.value
+        if self.has_successor():
+            successor = node.get_successor()
+            # update node
+            node.key = successor.key
+            node.value = successor.value
 
-        if successor.is_left_child():
-            successor.parent.left_child = successor.right_child
+            # We update parent relationship to grandchild.
+            if successor.is_left_child():
+                successor.parent.left_child = successor.right_child
+            else:
+                successor.parent.right_child = successor.right_child
+            
+            del successor
+            return node
+        # Then it must have a predecessor !
         else:
-            successor.parent.right_child = successor.right_child
+            predecessor = node.get_predecessor()
+            # update node
+            node.key = predecessor.key
+            node.value = predecessor.value
+
+            # We update parent relationship to grandchild.
+            if predecessor.is_right_child():
+                predecessor.parent.right_child = predecessor.left_child
+            else:
+                predecessor.parent.left_child = predecessor.right_child
+            
+            del successor
+            return node
 
     def search(self, key: NodeKey) -> Self | None:
         if key == self.key:
