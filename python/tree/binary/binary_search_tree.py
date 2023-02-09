@@ -105,35 +105,20 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
             return child
 
         # Two children
-        if self.has_successor():
-            successor = node.get_successor()
-            # update node
-            node.key = successor.key
-            node.value = successor.value
+        # It always have a successor, because right child always exists !
+        successor = node.get_successor()
+        # update node
+        node.key = successor.key
+        node.value = successor.value
 
-            # We update parent relationship to grandchild.
-            if successor.is_left_child():
-                successor.parent.left_child = successor.right_child
-            else:
-                successor.parent.right_child = successor.right_child
-            
-            del successor
-            return node
-        # Then it must have a predecessor !
+        # We update parent relationship to grandchild.
+        if successor.is_left_child():
+            successor.parent.left_child = successor.right_child
         else:
-            predecessor = node.get_predecessor()
-            # update node
-            node.key = predecessor.key
-            node.value = predecessor.value
-
-            # We update parent relationship to grandchild.
-            if predecessor.is_right_child():
-                predecessor.parent.right_child = predecessor.left_child
-            else:
-                predecessor.parent.left_child = predecessor.right_child
-            
-            del successor
-            return node
+            successor.parent.right_child = successor.right_child
+        
+        del successor
+        return node
 
     def search(self, key: NodeKey) -> Self | None:
         if key == self.key:
@@ -146,4 +131,4 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
             )
 
     def key_exists(self, key: NodeKey):
-        return self.search(key) is None
+        return self.search(key) is not None
