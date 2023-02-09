@@ -1,20 +1,21 @@
 from typing import TypeVar, Generic, Dict, Hashable
 from graphviz import Graph
 
-NV = TypeVar('NV')
-EV = TypeVar('EV')
+NV = TypeVar("NV")
+EV = TypeVar("EV")
+
 
 class AdjacencySetUndirectedGraph(Generic[NV, EV]):
     """Graph implementation using hashable object and adjacency dict."""
-    
+
     def __init__(self) -> None:
         super().__init__()
-        self.nodes: Dict[Hashable, NV] =  dict()
+        self.nodes: Dict[Hashable, NV] = dict()
         self.links: Dict[Hashable, Dict[Hashable, EV]] = dict()
 
-    def add_node(self, node: Hashable, value: NV=None) -> None:
+    def add_node(self, node: Hashable, value: NV = None) -> None:
         """Add node to the graph. If the node already exist update the node value.
-        
+
         The None value cannot be used in our implementation to avoid any confusion (None is an hashable).
 
         Args:
@@ -26,7 +27,7 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
         """
         if node is None:
             raise ValueError("None value cannot be used as a Node")
-        
+
         if node not in self.nodes:
             # We initialize the entry in the adjency dict for this node.
             self.links[node] = {}
@@ -40,7 +41,7 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
 
         Raises:
             ValueError: When the node is not in the graph
-        """        
+        """
         if node not in self.nodes:
             raise ValueError("The given node is not in the graph")
         # Delete the node
@@ -50,8 +51,15 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
         for connected_node in connected_nodes:
             del self.links[connected_node][node]
         del self.links[node]
-        
-    def add_link(self, node1: Hashable, node2: Hashable, link_value: EV = None, node1_value: NV = None, node2_value: NV = None):
+
+    def add_link(
+        self,
+        node1: Hashable,
+        node2: Hashable,
+        link_value: EV = None,
+        node1_value: NV = None,
+        node2_value: NV = None,
+    ):
         """Add a link to the graph. If a node is not part of the graph yet, it will be created with the given node value.
         If the node already exists, the node value will not be updated.
 
@@ -67,7 +75,7 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
             self.add_node(node1, node1_value)
         if node2 not in self.nodes:
             self.add_node(node2, node2_value)
-        
+
         # Add the link in the adjency dict for both node.
         self.links[node1][node2] = link_value
         self.links[node2][node1] = link_value
@@ -82,13 +90,15 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
         Raises:
             ValueError: The first node in not in the graph
             ValueError: The second node is not in the graph
-        """        
+        """
         if node1 not in self.nodes:
             raise ValueError("First node of the given link is not in the graph")
         if node2 not in self.nodes:
             raise ValueError("Second node of the given link is not in the graph")
         del self.links[node1][node2]
-        if node1 != node2: # A link can connect the node to itself, but we can't delete it twice.
+        if (
+            node1 != node2
+        ):  # A link can connect the node to itself, but we can't delete it twice.
             del self.links[node2][node1]
 
     def render(self, filename: str, graph_name: str, output_format: str = "svg"):
@@ -103,14 +113,14 @@ class AdjacencySetUndirectedGraph(Generic[NV, EV]):
 
         for node, node_value in self.nodes.items():
             dot.node(str(node), str(node_value))
-        
+
         added_links = set()
 
         for source_node, dest_nodes in self.links.items():
             for dest_node, link_value in dest_nodes.items():
-                # Check the link is 
+                # Check the link is
                 if (dest_node, source_node) in added_links:
                     continue
                 added_links.add((source_node, dest_node))
-                dot.edge(str(source_node), str(dest_node) , label=str(link_value))
+                dot.edge(str(source_node), str(dest_node), label=str(link_value))
         dot.render(filename)
