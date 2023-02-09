@@ -59,7 +59,7 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
 
     def has_predecessor(self) -> "BinarySearchNode":
         return (self.left_child is not None) or self.is_right_child()
-    
+
     def get_successor(self) -> "BinarySearchNode":
         if self.right_child is not None:
             return self.right_child.get_most_left()
@@ -116,7 +116,7 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
             successor.parent.left_child = successor.right_child
         else:
             successor.parent.right_child = successor.right_child
-        
+
         del successor
         return node
 

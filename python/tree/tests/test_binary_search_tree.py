@@ -37,6 +37,7 @@ def test_binary_search_tree_insert_mixed():
     ]:
         assert node.key == expected
 
+
 def test_binary_search_tree_delete_leaf():
     root = BinarySearchNode(key=1)
     root.insert(2)
@@ -50,12 +51,14 @@ def test_binary_search_tree_delete_leaf():
 
     assert node is None
 
+
 def test_binary_search_delete_non_existent_key():
     root = BinarySearchNode(key=1)
     root.insert(2)
     node = root.delete(10)
 
     assert node is None
+
 
 def test_binary_search_tree_delete_root():
     root = BinarySearchNode(key=1)
@@ -64,12 +67,14 @@ def test_binary_search_tree_delete_root():
 
     assert node is replaced_node
 
+
 def test_binary_search_tree_delete_a_left_child():
     root = BinarySearchNode(key=2)
     root.insert(1)
     node = root.insert(0)
     replaced_node = root.delete(1)
     assert node is replaced_node
+
 
 def test_binary_search_tree_delete_mid_node():
     root = BinarySearchNode(key=1)
@@ -78,6 +83,7 @@ def test_binary_search_tree_delete_mid_node():
     node = root.delete(2)
     assert node.key == 3
 
+
 def test_binary_search_tree_exists():
     root = BinarySearchNode(key=1)
     root.insert(2)
@@ -85,6 +91,7 @@ def test_binary_search_tree_exists():
     root.insert(4)
     assert root.key_exists(5) is False
     assert root.key_exists(4) is True
+
 
 def test_binary_search_tree_delete_successor_node():
     root = BinarySearchNode(key=3)
@@ -122,6 +129,7 @@ def test_binary_search_tree_delete_successor_node():
     replaced = root.delete(2)
     assert replaced is root
 
+
 def test_binary_search_tree_successor():
     root = BinarySearchNode(key=3)
     root.insert(2)
@@ -133,7 +141,7 @@ def test_binary_search_tree_successor():
     successor = root.insert(3)
 
     assert root.get_successor() is successor
-    
+
     root = BinarySearchNode(key=2)
     root.insert(1)
     root.insert(4)
@@ -144,6 +152,7 @@ def test_binary_search_tree_successor():
     root = BinarySearchNode(key=2)
     leaf = root.insert(1)
     assert leaf.get_successor() is root
+
 
 def test_binary_search_tree_predecessor():
     root = BinarySearchNode(key=1)
@@ -156,7 +165,7 @@ def test_binary_search_tree_predecessor():
     predecessor = root.insert(1)
 
     assert root.get_predecessor() is predecessor
-    
+
     root = BinarySearchNode(key=3)
     root.insert(0)
     predecessor = root.insert(2)
@@ -167,15 +176,18 @@ def test_binary_search_tree_predecessor():
     node = root.insert(2)
     assert node.get_predecessor() is root
 
+
 def test_binary_search_tree_is_leaf():
     root = BinarySearchNode(key=1)
     leaf = root.insert(1)
     assert leaf.is_leaf() is True
 
+
 def test_binary_search_tree_is_root():
     root = BinarySearchNode(key=1)
     leaf = root.insert(1)
     assert root.is_root() is True
+
 
 def test_binary_search_tree_has_predecessor():
     root = BinarySearchNode(key=1)
@@ -184,12 +196,14 @@ def test_binary_search_tree_has_predecessor():
     root.insert(-1)
     assert root.has_predecessor() is True
 
+
 def test_binary_search_tree_has_successor():
     root = BinarySearchNode(key=1)
     assert root.has_successor() is False
 
     root.insert(2)
     assert root.has_successor() is True
+
 
 def test_binary_search_tree_iter():
     root = BinarySearchNode(key=3)
@@ -203,5 +217,5 @@ def test_binary_search_tree_iter():
     chain = ""
     for node in root:
         chain += str(node.key)
-    
+
     assert chain == "012345"
