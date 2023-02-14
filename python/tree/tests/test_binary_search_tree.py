@@ -127,7 +127,7 @@ def test_binary_search_tree_delete_successor_node():
     root.insert(5)
     node = root.insert(4)
     replaced = root.delete(2)
-    assert replaced is root
+    assert replaced is node
 
 
 def test_binary_search_tree_successor():

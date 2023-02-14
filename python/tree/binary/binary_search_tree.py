@@ -107,9 +107,6 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
         # Two children
         # It always have a successor, because right child always exists !
         successor = node.get_successor()
-        # update node
-        node.key = successor.key
-        node.value = successor.value
 
         # We update parent relationship to grandchild.
         if successor.is_left_child():
@@ -117,8 +114,26 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
         else:
             successor.parent.right_child = successor.right_child
 
-        del successor
-        return node
+        if successor.left_child is not None:
+            successor.left_child.parent = successor.parent
+
+        # update node child parent
+        if node.left_child is not None:
+            node.left_child.parent = successor
+        if node.right_child is not None:
+            node.right_child.parent = successor
+
+        # update successor child parent
+        if successor.left_child is not None:
+            successor.left_child.parent = successor.parent
+        if successor.right_child is not None:
+            successor.right_child.parent = successor.parent
+
+        successor.left_child = node.left_child
+        successor.right_child = node.right_child
+
+        del node
+        return successor
 
     def search(self, key: NodeKey) -> Self | None:
         if key == self.key:
