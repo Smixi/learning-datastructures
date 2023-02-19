@@ -85,10 +85,8 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
             if not node.is_root():
                 if node.is_left_child():
                     node.parent.left_child = None
-                    del node
                 else:
                     node.parent.right_child = None
-                    del node
             return None
 
         # Only one child
@@ -101,7 +99,6 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
                     node.parent.left_child = child
                 elif node.is_right_child():
                     node.parent.right_child = child
-            del node
             return child
 
         # Two children
@@ -132,7 +129,6 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
         successor.left_child = node.left_child
         successor.right_child = node.right_child
 
-        del node
         return successor
 
     def search(self, key: NodeKey) -> Self | None:

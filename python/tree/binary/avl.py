@@ -36,6 +36,34 @@ class AVLNode(Generic[NodeKey, NodeValue]):
     def is_leaf(self):
         return (self.left_child is None) and (self.right_child is None)
 
+    def get_most_left(self) -> "AVLNode":
+        return self if self.left_child is None else self.left_child.get_most_left()
+
+    def get_most_right(self) -> "AVLNode":
+        return self if self.right_child is None else self.right_child.get_most_right()
+
+    def has_successor(self) -> bool:
+        return (self.right_child is not None) or self.is_left_child()
+
+    def has_predecessor(self) -> "AVLNode":
+        return (self.left_child is not None) or self.is_right_child()
+
+    def get_successor(self) -> "AVLNode":
+        if self.right_child is not None:
+            return self.right_child.get_most_left()
+        return self.parent
+
+    def get_predecessor(self) -> "AVLNode":
+        if self.left_child is not None:
+            return self.left_child.get_most_right()
+        return self.parent
+
+    def is_left_child(self):
+        return self.parent.left_child is self if self.parent is not None else False
+
+    def is_right_child(self):
+        return self.parent.right_child is self if self.parent is not None else False
+
     @property
     def height(self):
         if self.is_leaf():
@@ -53,7 +81,7 @@ class AVLNode(Generic[NodeKey, NodeValue]):
         )
 
     def is_balanced(self):
-        return self.weight <= 1
+        return abs(self.weight) <= 1
 
 
 class AVLTree(Generic[NodeKey, NodeValue]):
@@ -90,14 +118,16 @@ class AVLTree(Generic[NodeKey, NodeValue]):
         if inserted_node is None:
             return None
         parent = inserted_node.parent
-        while parent is not None:
-            grandparent = parent.parent
-            if not parent.is_balanced():
-                self._rebalance(parent)
-            # Here we should update the height of the parent.
-
-            parent = grandparent
+        self._rebalance_tree_from_node(parent)
         return inserted_node
+
+    def _rebalance_tree_from_node(self, node: AVLNode):
+        while node is not None:
+            parent = node.parent
+            if not node.is_balanced():
+                self._rebalance(node)
+            # Here we should update the height of the parent.
+            node = parent
 
     def _rebalance(self, node: AVLNode):
         if node.weight == 2:
@@ -112,28 +142,38 @@ class AVLTree(Generic[NodeKey, NodeValue]):
     def _rotate_left(self, node: AVLNode):
         if node.is_root():
             return
-        node.parent.left_child = node.left_child
+        node.parent.right_child = node.left_child
         if node.left_child is not None:
             node.left_child.parent = node.parent
         grandparent = node.parent.parent
-        node.parent.parent = node
-        node.right_child = node.parent
-        node.parent = grandparent
         if grandparent is None:
             self.root = node
+        else:
+            if node.parent.is_left_child():
+                grandparent.left_child = node
+            else:
+                grandparent.right_child = node
+        node.parent.parent = node
+        node.left_child = node.parent
+        node.parent = grandparent
 
     def _rotate_right(self, node: AVLNode):
         if node.is_root():
             return
-        node.parent.right_child = node.right_child
+        node.parent.left_child = node.right_child
         if node.right_child is not None:
             node.right_child.parent = node.parent
         grandparent = node.parent.parent
-        node.parent.parent = node
-        node.left_child = node.parent
-        node.parent = grandparent
         if grandparent is None:
             self.root = node
+        else:
+            if node.parent.is_left_child():
+                grandparent.left_child = node
+            else:
+                grandparent.right_child = node
+        node.parent.parent = node
+        node.right_child = node.parent
+        node.parent = grandparent
 
     def insert(self, key: NodeKey, value: NodeValue | None = None):
         if self.root is None:
@@ -141,3 +181,78 @@ class AVLTree(Generic[NodeKey, NodeValue]):
             return self.root
         else:
             return self._insert_and_balance(key=key, value=value)
+
+    def delete(self, key: NodeKey) -> Self | None:
+        """Return the node that replace the deleted node. None if is a leaf or not found"""
+        node = self.search(key)
+        if node is None:
+            return None
+        if node.is_leaf():
+            if node.is_root():
+                self.root = None
+            else:
+                if node.is_left_child():
+                    node.parent.left_child = None
+                if node.is_right_child():
+                    node.parent.right_child = None
+                self._rebalance_tree_from_node(node.parent)
+            return None
+
+        # Only one child
+        if (node.left_child is None) or (node.right_child is None):
+            child = node.left_child or node.right_child
+            child.parent = node.parent
+
+            if not node.is_root():
+                if node.is_left_child():
+                    node.parent.left_child = child
+                elif node.is_right_child():
+                    node.parent.right_child = child
+                self._rebalance_tree_from_node(node.parent)
+            return child
+
+        # Two children
+        # It always have a successor, because right child always exists !
+        successor = node.get_successor()
+
+        # We update parent relationship to grandchild.
+        if successor.is_left_child():
+            successor.parent.left_child = successor.right_child
+        else:
+            successor.parent.right_child = successor.right_child
+
+        if successor.left_child is not None:
+            successor.left_child.parent = successor.parent
+
+        # update node child parent
+        if node.left_child is not None:
+            node.left_child.parent = successor
+        if node.right_child is not None:
+            node.right_child.parent = successor
+
+        # update successor child parent
+        if successor.left_child is not None:
+            successor.left_child.parent = successor.parent
+        if successor.right_child is not None:
+            successor.right_child.parent = successor.parent
+
+        successor.left_child = node.left_child
+        successor.right_child = node.right_child
+        self._rebalance_tree_from_node(successor)
+        return successor
+
+    def _search(self, key: NodeKey, start_node: AVLNode) -> AVLNode | None:
+        if key == start_node.key:
+            return start_node
+        if key < start_node.key:
+            return self._search(key, start_node.left_child) if start_node.left_child is not None else None
+        else:
+            return self._search(key, start_node.right_child) if start_node.right_child is not None else None
+
+    def search(self, key: NodeKey) -> AVLNode | None:
+        if self.root is None:
+            return None
+        return self._search(key, self.root)
+
+    def key_exists(self, key: NodeKey):
+        return self.search(key) is not None
