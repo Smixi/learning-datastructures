@@ -153,6 +153,11 @@ def test_binary_search_tree_successor():
     leaf = root.insert(1)
     assert leaf.get_successor() is root
 
+    root = BinarySearchNode(key=3)
+    root.insert(1)
+    leaf = root.insert(2)
+    assert leaf.get_successor() is root
+
 
 def test_binary_search_tree_predecessor():
     root = BinarySearchNode(key=1)
@@ -203,6 +208,15 @@ def test_binary_search_tree_has_successor():
 
     root.insert(2)
     assert root.has_successor() is True
+    
+    last = root.insert(3)
+    assert last.has_successor() is False
+
+    root = BinarySearchNode(key=3)
+    root.insert(1)
+    node = root.insert(2)
+    assert node.has_successor() is True
+
 
 
 def test_binary_search_tree_iter():

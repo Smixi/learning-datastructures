@@ -55,20 +55,52 @@ class BinarySearchNode(Generic[NodeKey, NodeValue]):
         return self if self.right_child is None else self.right_child.get_most_right()
 
     def has_successor(self) -> bool:
-        return (self.right_child is not None) or self.is_left_child()
+        if self.right_child is not None:
+            return True
+        has_successor = False
+        node = self
+        while node is not None:
+            if node.is_right_child() or node.is_root():
+                node = node.parent
+            else:
+                has_successor = True
+                break
+        return has_successor
 
     def has_predecessor(self) -> "BinarySearchNode":
-        return (self.left_child is not None) or self.is_right_child()
+        if self.left_child is not None:
+            return True
+        has_predecessor = False
+        node = self
+        while node is not None:
+            if node.is_left_child() or node.is_root():
+                node = node.parent
+            else:
+                has_predecessor = True
+                break
+        return has_predecessor
 
     def get_successor(self) -> "BinarySearchNode":
         if self.right_child is not None:
             return self.right_child.get_most_left()
-        return self.parent
+        node = self
+        while node is not None:
+            if node.is_right_child() or node.is_root():
+                node = node.parent
+            else:
+                return node.parent
+        return None
 
     def get_predecessor(self) -> "BinarySearchNode":
         if self.left_child is not None:
             return self.left_child.get_most_right()
-        return self.parent
+        node = self
+        while node is not None:
+            if node.is_left_child() or node.is_root():
+                node = node.parent
+            else:
+                return node.parent
+        return None
 
     def is_left_child(self):
         return self.parent.left_child is self if self.parent is not None else False
