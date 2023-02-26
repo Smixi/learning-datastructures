@@ -13,6 +13,7 @@ def test_avl_tree_insert_left_rotate():
     assert node1.left_child is None
     assert node1.right_child is None
 
+
 def test_avl_tree_insert_right_rotate():
     avl = AVLTree()
     node1 = avl.insert(3)
@@ -26,6 +27,7 @@ def test_avl_tree_insert_right_rotate():
     assert node1.right_child is None
     assert node3.left_child is None
     assert node3.right_child is None
+
 
 def test_avl_tree_insert_left_right_rotate():
     avl = AVLTree()
@@ -41,6 +43,7 @@ def test_avl_tree_insert_left_right_rotate():
     assert node2.left_child is None
     assert node2.right_child is None
 
+
 def test_avl_tree_insert_right_left_rotate():
     avl = AVLTree()
     node1 = avl.insert(3)
@@ -55,6 +58,7 @@ def test_avl_tree_insert_right_left_rotate():
     assert node2.left_child is None
     assert node2.right_child is None
 
+
 def test_avl_tree_delete():
     avl = AVLTree()
     avl.insert(1)
@@ -63,6 +67,7 @@ def test_avl_tree_delete():
     avl.delete(3)
 
     assert avl.root.right_child is None
+
 
 def test_avl_tree_delete_left_rotate():
     avl = AVLTree()
@@ -74,6 +79,7 @@ def test_avl_tree_delete_left_rotate():
 
     assert avl.root is node
 
+
 def test_avl_tree_delete_right_rotate():
     avl = AVLTree()
     avl.insert(3)
@@ -83,6 +89,7 @@ def test_avl_tree_delete_right_rotate():
     avl.delete(4)
 
     assert avl.root is node
+
 
 def test_avl_tree_delete_intermediate():
     avl = AVLTree()
@@ -94,6 +101,7 @@ def test_avl_tree_delete_intermediate():
     avl.delete(4)
 
     assert avl.root is node
+
 
 def test_avl_tree_delete_intermediate2():
     avl = AVLTree()

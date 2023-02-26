@@ -208,7 +208,7 @@ def test_binary_search_tree_has_successor():
 
     root.insert(2)
     assert root.has_successor() is True
-    
+
     last = root.insert(3)
     assert last.has_successor() is False
 
@@ -216,7 +216,6 @@ def test_binary_search_tree_has_successor():
     root.insert(1)
     node = root.insert(2)
     assert node.has_successor() is True
-
 
 
 def test_binary_search_tree_iter():

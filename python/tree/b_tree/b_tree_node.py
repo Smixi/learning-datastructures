@@ -8,6 +8,7 @@ NodeValue = TypeVar("NodeValue")
 
 GenericEntry = Generic[NodeKey, NodeValue]
 
+
 @dataclass
 class BTreeEntry(GenericEntry):
     key: NodeKey
@@ -26,7 +27,7 @@ class BTreeEntry(GenericEntry):
 
     def __lt__(self, other: "BTreeEntry" | NodeKey):
         return self.key < self._get_key(other)
-    
+
     def __gt__(self, other: "BTreeEntry" | NodeKey):
         return self.key > self._get_key(other)
 
@@ -36,22 +37,26 @@ class BTreeEntry(GenericEntry):
     def __le__(self, other: "BTreeEntry" | NodeKey):
         return self.key <= self._get_key(other)
 
+
 @dataclass
 class BTreeNode(GenericEntry):
     children: SortedSet[Self] = field(default_factory=SortedSet)
     entries: SortedDict[NodeKey, BTreeEntry] = field(default_factory=SortedDict)
+    parent: Optional["BTreeNode"] = None
     order: int = 2
 
     def get_child(self, key: NodeKey) -> "BTreeNode":
         """Get the child node that could contains the key"""
         if len(self.entries) == 0:
             raise ValueError("Node is empty")
+        if self.is_leaf():
+            raise ValueError("Node is a leaf")
         index = self.entries.bisect(key)
         return self.children[index]
 
     def is_leaf(self):
         return len(self.children) == 0
-    
+
     def is_full(self):
         return len(self.entries) == self.order * 2 - 1
 
@@ -74,8 +79,18 @@ class BTreeNode(GenericEntry):
         left_node.children.update(self.children.islice(stop=self.order // 2))
         right_node = BTreeNode(order=self.order)
         right_node.children.update(self.children.islice(start=self.order // 2 + 1))
-        left_node.entries.update({key: self.entries[key] for key in self.entries.islice(stop=self.order // 2)})
-        right_node.entries.update({key: self.entries[key] for key in self.entries.islice(start=self.order // 2 + 1)})
+        left_node.entries.update(
+            {
+                key: self.entries[key]
+                for key in self.entries.islice(stop=self.order // 2)
+            }
+        )
+        right_node.entries.update(
+            {
+                key: self.entries[key]
+                for key in self.entries.islice(start=self.order // 2 + 1)
+            }
+        )
         _, separator_entry = self.entries.popitem(index=self.order // 2)
         return left_node, separator_entry, right_node
 
@@ -84,7 +99,7 @@ class BTreeNode(GenericEntry):
 
     def __lt__(self, other: "BTreeNode" | NodeKey | BTreeEntry):
         return self.entries.values()[0] < self._get_entry(other)
-    
+
     def __gt__(self, other: "BTreeNode" | NodeKey | BTreeEntry):
         return self.entries.values()[0] > self._get_entry(other)
 

@@ -89,7 +89,7 @@ class AVLNode(Generic[NodeKey, NodeValue]):
             else:
                 return node.parent
         return None
-    
+
     def is_left_child(self):
         return self.parent.left_child is self if self.parent is not None else False
 
@@ -277,9 +277,17 @@ class AVLTree(Generic[NodeKey, NodeValue]):
         if key == start_node.key:
             return start_node
         if key < start_node.key:
-            return self._search(key, start_node.left_child) if start_node.left_child is not None else None
+            return (
+                self._search(key, start_node.left_child)
+                if start_node.left_child is not None
+                else None
+            )
         else:
-            return self._search(key, start_node.right_child) if start_node.right_child is not None else None
+            return (
+                self._search(key, start_node.right_child)
+                if start_node.right_child is not None
+                else None
+            )
 
     def search(self, key: NodeKey) -> AVLNode | None:
         if self.root is None:
